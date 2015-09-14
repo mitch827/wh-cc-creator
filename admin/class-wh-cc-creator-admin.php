@@ -142,27 +142,54 @@ class Wh_Cc_Creator_Admin {
 	 */
 	public function register_setting() {
 		
-		// Add a General section
+		// Add sections
 		add_settings_section(
-		    $this->option_name . '_cpt_edit',
-		    __( 'Custom post type archive pages', 'wh-cc-creator' ),
-		    array( $this, $this->option_name . '_cpt_general_cb' ),
-		    $this->plugin_name . '_cpt_edit'
+		    $this->option_name . '_add_tax',
+		    __( 'Custom taxonomy creator', 'wh-cc-creator' ),
+		    array( $this, $this->option_name . '_general_cb' ),
+		    $this->plugin_name . '_add_tax'
+		);
+		
+		add_settings_section(
+		    $this->option_name . '_add_cpt',
+		    __( 'Custom post type creator', 'wh-cc-creator' ),
+		    array( $this, $this->option_name . '_general_cb' ),
+		    $this->plugin_name . '_add_cpt'
 		);
 		
 		add_settings_section(
 		    $this->option_name . '_tax_edit',
 		    __( 'Taxonomy archive pages', 'wh-cc-creator' ),
-		    array( $this, $this->option_name . '_tax_general_cb' ),
+		    array( $this, $this->option_name . '_general_cb' ),
 		    $this->plugin_name . '_tax_edit'
 		);
 		
 		add_settings_section(
 		    $this->option_name . '_term_edit',
 		    __( 'Taxonomy terms archive pages', 'wh-cc-creator' ),
-		    array( $this, $this->option_name . '_term_general_cb' ),
+		    array( $this, $this->option_name . '_general_cb' ),
 		    $this->plugin_name . '_term_edit'
 		);
+		
+		add_settings_section(
+		    $this->option_name . '_cpt_edit',
+		    __( 'Custom post type archive pages', 'wh-cc-creator' ),
+		    array( $this, $this->option_name . '_general_cb' ),
+		    $this->plugin_name . '_cpt_edit'
+		);
+		
+		//CUSTOM TAXONOMY creator
+		add_settings_field(
+			$this->option_name . '_tax_creator',
+			__( 'Taxonomy creator', 'wh-cc-creator' ),
+			array( $this, $this->option_name . '_tax_creator_cb'),
+			$this->plugin_name . '_add_tax',
+			$this->option_name . '_add_tax',
+			$param = array(
+				'label_for' 	=> $this->option_name . '_select_cpt',
+			)
+		);
+		register_setting( $this->plugin_name . '_add_tax', $this->option_name . '_tax_creator' );
 		
 		//CUSTOM POST TYPE selector
 		$args = array (
@@ -344,14 +371,30 @@ class Wh_Cc_Creator_Admin {
 	 * @access public
 	 * @return void
 	 */
-	public function wh_cc_creator_cpt_general_cb() {
-	    echo '<p>' . __( 'Insert custom text for the Custom Post Type archive pages.', 'wh-cc-creator' ) . '</p>';
+	public function wh_cc_creator_general_cb( $section_passed ) {
+		switch ( $section_passed['id'] ) :
+			case  $this->option_name . '_add_tax':
+				printf( __( '<p>%s: add custom taxonomies.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				break;
+			case  $this->option_name . '_add_cpt':
+				printf( __( '<p>%s: add custom tpost types.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				break;
+			case  $this->option_name . '_tax_edit':
+				printf( __( '<p>%s: customize custom taxonomies archive page.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				break;
+			case  $this->option_name . '_term_edit':
+				printf( __( '<p>%s: customize custom taxonomy terms archive page.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				break;
+			case  $this->option_name . '_cpt_edit':
+				printf( __( '<p>%s: customize custom post types archive page.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				break;
+	    endswitch;
 	}
-	public function wh_cc_creator_tax_general_cb() {
-	    echo '<p>' . __( 'Insert custom text for the Taxonomies archive pages.', 'wh-cc-creator' ) . '</p>';
-	}
-	public function wh_cc_creator_term_general_cb() {
-	    echo '<p>' . __( 'Insert custom text for the Taxonomy terms archive pages.', 'wh-cc-creator' ) . '</p>';
+	
+	public function wh_cc_creator_tax_creator_cb(){
+		?>
+			
+		<?php
 	}
 	
 	/**
