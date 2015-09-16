@@ -6,3 +6,19 @@
 .wp-ui-notification {
 	padding: 10px;
 }
+
+.image_path{
+	width: 280px;
+	margin: 0px 10px 0px 0px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+#upload_image{
+	margin: 0px 4px 10px 0px;
+}
+
+#show_upload_preview{
+	margin-bottom: 10px;
+	max-width: 350px;
+}

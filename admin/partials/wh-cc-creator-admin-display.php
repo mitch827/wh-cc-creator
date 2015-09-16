@@ -39,7 +39,7 @@
 		<a href="?page=wh-cc-creator&tab=cpt_edit" class="nav-tab <?php echo $active_tab == 'cpt_edit' ? 'nav-tab-active' : ''; ?>"><?php _e('CPT archives editor', 'wh-cc-creator'); ?></a>
 	</h3>
 	
-	<form action="options.php" method="post">
+	<form action="options.php" method="post" action="#">
         <?php
 	        if( $active_tab == 'add_tax' ) {
 	            settings_fields( $this->plugin_name . '_add_tax');

@@ -39,6 +39,24 @@ class Wh_Cc_Creator_Admin {
 	 * @var     string      $option_name    Option name of this plugin
 	 */
 	private $option_name = 'wh_cc_creator';
+	
+	/**
+	 * The options responsibile to contain cpt, taxonomies and terms
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 * @var     string      $option_name    Option name of this plugin
+	 */
+	private $cpt_selected = FALSE; 	//custom post type user selected
+	private $cpt_name = FALSE; 		//cpt wp name
+	private $cpt_label = FALSE; 	//cpt label (human readable)
+	private $tax_selected = FALSE; 	//custom taxonomy post type user selected
+	private $tax_name = FALSE; 		//custom taxonomy wp name
+	private $tax_label = FALSE; 	//custom taxonomy label (human readable)
+	private $term_selected = FALSE; //custom taxonomy term user selected
+	private $term_name = FALSE; 	//custom taxonomy term wp slug
+	private $term_label = FALSE; 	//custom taxonomy term name (human readable)
+	private $img_path = FALSE;		//img path container
 
 	/**
 	 * The version of this plugin.
@@ -60,7 +78,17 @@ class Wh_Cc_Creator_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
+		$this->cpt_selected = get_option( $this->option_name . '_select_cpt' );
+		$this->tax_selected = get_option( $this->option_name . '_select_tax' );
+		$this->term_selected = get_option( $this->option_name . '_select_term' );
+		if( isset( $this->cpt_selected ) && !empty( $this->cpt_selected ) )
+			list( $this->cpt_name, $this->cpt_label ) = explode( '|', $this->cpt_selected );
+		if ( isset( $this->term_selected ) && !empty( $this->term_selected ) )
+			list( $this->term_name, $this->term_label  ) = explode( '|', $this->term_selected );
+		if ( isset( $this->tax_selected ) && !empty( $this->tax_selected ) )
+			list( $this->tax_name, $this->tax_label ) = explode( '|', $this->tax_selected );
+		$this->img_path = get_option( $this->option_name . '_' . $this->cpt_name . '_content_img' );
+		
 	}
 
 	/**
@@ -83,6 +111,7 @@ class Wh_Cc_Creator_Admin {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wh-cc-creator-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style('thickbox'); //Provides the styles needed for this window.
 
 	}
 
@@ -106,6 +135,12 @@ class Wh_Cc_Creator_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wh-cc-creator-admin.js', array( 'jquery' ), $this->version, false );
+		wp_localize_script( $this->plugin_name, 'cpt', $this->cpt_name );
+		wp_localize_script( $this->plugin_name, 'img_path', $this->img_path );
+		// Also adds a check to make sure `wp_enqueue_media` has only been called once.
+		// @see: http://core.trac.wordpress.org/ticket/22843
+		if ( ! did_action( 'wp_enqueue_media' ) )
+			wp_enqueue_media();
 
 	}
 	
@@ -251,116 +286,115 @@ class Wh_Cc_Creator_Admin {
 		register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_select_term' );
 		
 		//CUSTOM POST TYPE editor
-		$cpt_selected = get_option( $this->option_name . '_select_cpt' );
-		if ( isset( $cpt_selected ) && !empty( $cpt_selected ) ){
-			list( $cpt_name, $cpt_label ) = explode( '|', $cpt_selected );
+		if ( isset( $this->cpt_selected ) && !empty( $this->cpt_selected ) ){
 			
+			//Add image uploader
+			add_settings_field(
+			    $this->option_name . '_' . $this->cpt_name . '_content_img',
+			    $this->cpt_label . ' ' .  __( 'image', 'wh-cc-creator' ),
+			    array( $this, $this->option_name . '_cpt_content_img_cb' ),
+			    $this->plugin_name . '_cpt_edit',
+			    $this->option_name . '_cpt_edit',
+			    $param = array( 
+			    	'label_for' => $this->option_name . '_' . $this->cpt_name . '_content_img',
+			    	'multilang' => false
+			    )
+			);
+			register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_img' );
+			
+			//Add CPT content editor
 			if ( defined( 'ICL_LANGUAGE_CODE' ) ){
 				add_settings_field(
-				    $this->option_name . '_' . $cpt_name . '_content_' . ICL_LANGUAGE_CODE,
-				    $cpt_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
+				    $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE,
+				    $this->cpt_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
 				    array( $this, $this->option_name . '_cpt_content_cb' ),
 				    $this->plugin_name . '_cpt_edit',
 				    $this->option_name . '_cpt_edit',
 				    $param = array( 
-				    	'label_for' => $this->option_name . '_' . $cpt_name . '_content_' . ICL_LANGUAGE_CODE,
-				    	'cpt_label'	=> $cpt_label,
-				    	'cpt_name'	=> $cpt_name,
+				    	'label_for' => $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE,
 				    	'multilang' => true
 				    )
 				);
-				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_cpt_content_' . ICL_LANGUAGE_CODE . '_' . $cpt_name );
+				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE );
 			} else {
 				add_settings_field(
-				    $this->option_name . '_' . $cpt_name . '_content',
-				    $cpt_label . ' ' .  __( 'content', 'wh-cc-creator' ),
+				    $this->option_name . '_' . $this->cpt_name . '_content',
+				    $this->cpt_label . ' ' .  __( 'content', 'wh-cc-creator' ),
 				    array( $this, $this->option_name . '_cpt_content_cb' ),
 				    $this->plugin_name . '_cpt_edit',
 				    $this->option_name . '_cpt_edit',
 				    $param = array( 
-				    	'label_for' => $this->option_name . '_' . $cpt_name . '_content',
-				    	'cpt_label'	=> $cpt_label,
-				    	'cpt_name'	=> $cpt_name,
+				    	'label_for' => $this->option_name . '_' . $this->cpt_name . '_content',
 				    	'multilang' => false
 				    )
 				);
-				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_cpt_content_' . $cpt_name );
+				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content' );
 			}
 		}
 		
 		//TAXONOMY editor
-		$tax_selected = get_option( $this->option_name . '_select_tax' );
-		if ( isset( $tax_selected ) && !empty( $tax_selected ) ){
-			list( $tax_name, $tax_label ) = explode( '|', $tax_selected );
+		if ( isset( $this->tax_selected ) && !empty( $this->tax_selected ) ){
 		
 			if ( defined( 'ICL_LANGUAGE_CODE' ) ){
 				add_settings_field(
-				    $this->option_name . '_' . $tax_name . '_content_' . ICL_LANGUAGE_CODE,
-				    $tax_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
+				    $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE,
+				    $this->tax_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
 				    array( $this, $this->option_name . '_tax_content_cb' ),
 				    $this->plugin_name . '_tax_edit',
 				    $this->option_name . '_tax_edit',
 				    $param = array( 
-				    	'label_for' => $this->option_name . '_' . $tax_name . '_content_' . ICL_LANGUAGE_CODE,
-				    	'tax_label'	=> $tax_label,
-				    	'tax_name'	=> $tax_name,
+				    	'label_for' => $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE,
 				    	'multilang' => true
 				    )
 				);
-				register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_tax_content_' . ICL_LANGUAGE_CODE . '_' . $tax_name );
+				register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE );
 			} else {
 				add_settings_field(
-				    $this->option_name . '_' . $tax_name . '_content',
-				    $tax_label . ' ' .  __( 'content', 'wh-cc-creator' ),
+				    $this->option_name . '_' . $this->tax_name . '_content',
+				    $this->tax_label . ' ' .  __( 'content', 'wh-cc-creator' ),
 				    array( $this, $this->option_name . '_tax_content_cb' ),
 				    $this->plugin_name . '_tax_edit',
 				    $this->option_name . '_tax_edit',
 				    $param = array( 
-				    	'label_for' => $this->option_name . '_' . $tax_name . '_content',
-				    	'tax_label'	=> $tax_label,
-				    	'tax_name'	=> $tax_name,
+				    	'label_for' => $this->option_name . '_' . $this->tax_name . '_content',
 				    	'multilang' => false
 				    )
 				);
-				register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_tax_content_' . $tax_name );
+				register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_' . $this->tax_name . '_content' );
 			}
 		}
 		
 		//TAXONOMY TERM editor
-		$term_selected = get_option( $this->option_name . '_select_term' );
-		if ( isset( $term_selected ) && !empty( $term_selected ) ){
-			list( $term_name, $term_label ) = explode( '|', $term_selected );
+		
+		
+		if ( isset( $this->term_selected ) && !empty( $this->term_selected ) ){	
 		
 			if ( defined( 'ICL_LANGUAGE_CODE' ) ){
 				add_settings_field(
-				    $this->option_name . '_' . $term_name . '_content_' . ICL_LANGUAGE_CODE,
-				    $term_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
+				    $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE,
+				    $this->term_label  . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
 				    array( $this, $this->option_name . '_term_content_cb' ),
 				    $this->plugin_name . '_term_edit',
 				    $this->option_name . '_term_edit',
 				    $param = array( 
-				    	'label_for' => $this->option_name . '_' . $term_name . '_content_' . ICL_LANGUAGE_CODE,
-				    	'term_label'=> $term_label,
-				    	'term_name'	=> $term_name,
+				    	'label_for' => $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE,
 				    	'multilang' => true
 				    )
 				);
-				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_term_content_' . ICL_LANGUAGE_CODE . '_' . $term_name );
+				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE );
 			} else {
 				add_settings_field(
-				    $this->option_name . '_' . $term_name . '_content',
-				    $term_label . ' ' .  __( 'content', 'wh-cc-creator' ),
+				    $this->option_name . '_' . $this->term_name . '_content',
+				    $this->term_label  . ' ' .  __( 'content', 'wh-cc-creator' ),
 				    array( $this, $this->option_name . '_term_content_cb' ),
 				    $this->plugin_name . '_term_edit',
 				    $this->option_name . '_term_edit',
 				    $param = array( 
-				    	'label_for' => $this->option_name . '_' . $term_name . '_content',
-				    	'term_label'=> $term_label,
-				    	'term_name'	=> $term_name,
+				    	'label_for' => $this->option_name . '_' . $this->term_name . '_content',
 				    	'multilang' => false
 				    )
 				);
-				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_term_content_' . $term_name );
+				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content' );
 			}
 		}
 	}
@@ -408,12 +442,13 @@ class Wh_Cc_Creator_Admin {
 	 */
 	public function wh_cc_creator_cpt_select_cb( $param ){
 		$post_types = $param['post_types'];
+		$cpt_select = get_option( $this->option_name . '_select_cpt' );
 
 		echo '<select name="' . $this->option_name . '_select_cpt' .'" onchange=" this.form.submit(); ">';
 		echo '<option selected="true" disabled>Select:</option>';
 		if( $post_types ) :
 			foreach( $post_types as $cpt ) :
-        		echo '<option value="' . $cpt->name . '|' . $cpt->label . '">' . $cpt->label . '</option>';
+        		echo '<option value="' . $cpt->name . '|' . $cpt->label . '" ' . selected( $cpt_select, $cpt->name . '|' . $cpt->label, false ) . '>' . $cpt->label . '</option>';
 			endforeach;
 		else :
 			echo '<option value="none" disabled>No CPT found</option>';
@@ -423,12 +458,13 @@ class Wh_Cc_Creator_Admin {
 	
 	public function wh_cc_creator_tax_select_cb( $param ){
 		$taxonomies = $param['taxonomies'];
+		$tax_select = get_option( $this->option_name . '_select_tax' );
 
 		echo '<select name="' . $this->option_name . '_select_tax' .'" onchange=" this.form.submit(); ">';
 		echo '<option selected="true" disabled>Select:</option>';
 		if( $taxonomies ) :
 			foreach(  $taxonomies as $tax ) :
-        		echo '<option value="' . $tax->name . '|' . $tax->label . '">' . $tax->label . '</option>';
+        		echo '<option value="' . $tax->name . '|' . $tax->label . '" ' . selected( $tax_select, $tax->name . '|' . $tax->label, false ) . '>' . $tax->label . '</option>';
 			endforeach;
 		else :
 			echo '<option value="none" disabled>No Taxonomies found</option>';
@@ -438,12 +474,13 @@ class Wh_Cc_Creator_Admin {
 	
 	public function wh_cc_creator_term_select_cb( $param ){
 		$terms = $param['tax_terms'];
+		$term_select = get_option( $this->option_name . '_select_term' );
 		
 		echo '<select name="' . $this->option_name . '_select_term' .'" onchange=" this.form.submit(); ">';
 		echo '<option selected="true" disabled>Select:</option>';
 		if( $terms ) :
 			foreach(  $terms as $term ) :
-        		echo '<option value="' . $term->slug . '|' . $term->name . '">' . $term->name . '</option>';
+        		echo '<option value="' . $term->slug . '|' . $term->name . '" ' . selected( $term_select, $term->slug . '|' . $term->name, false ) . '>' . $term->name . '</option>';
 			endforeach;
 		else :
 			echo '<option value="none" disabled>No Taxonomies terms found</option>';
@@ -451,6 +488,35 @@ class Wh_Cc_Creator_Admin {
 		echo '</select>';
 	}
 	
+	/**
+	 * wh_cc_creator_cpt_content_img_cb function. Add image using WP media uploader
+	 * 
+	 * @access public
+	 * @param mixed $param
+	 * @return void
+	 */
+	public function wh_cc_creator_cpt_content_img_cb( $param ){
+		$multilang = $param['multilang'];
+		
+		?>
+		
+		<input type="text" name="<?php echo $this->option_name . '_' . $this->cpt_name . '_content_img'; ?>" class="image_path regular-text ltr" value="<?php echo $this->img_path; ?>" id="image_path">
+		<input type="button" value="Choose image" class="button-primary" id="upload_image"/>
+		<div id="show_upload_preview">
+			<?php if( ! empty( $this->img_path ) ) : ?>
+				<p class="description"><?php _e( 'Image preview' , 'wh-cc-creator' ); ?></p>
+				<img src="<?php echo $this->img_path; ?>">
+			<?php endif; ?>
+		</div>
+		<?php if( ! empty( $this->img_path ) ) : ?>
+			<input type="submit" name="remove" value="Remove image" class="button-secondary" id="remove_image"/>
+		<?php else : ?>
+			<input type="submit" name="image_submit" class="save_path button-primary" id="image_submit" value="<?php _e('Save image', 'wh-cc-creator'); ?>">
+		<?php endif; ?>
+
+	<?php
+	}
+
 	/**
 	 * wh_cc_creator_cpt_content_cb function.
 	 * 
@@ -461,54 +527,49 @@ class Wh_Cc_Creator_Admin {
 	 * @return void
 	 */
 	public function wh_cc_creator_cpt_content_cb( $param ){
-		$cpt_name = $param['cpt_name'];
-		$cpt_label = $param['cpt_label'];
 		$multilang = $param['multilang'];
 		
 		if( $multilang ){
-			$cpt_content[ ICL_LANGUAGE_CODE ][ $cpt_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_cpt_content_' . ICL_LANGUAGE_CODE . '_' . $cpt_name ), $this->option_name . '_cpt_content_' . ICL_LANGUAGE_CODE . '_' . $cpt_name );
-			wp_editor($cpt_content[ ICL_LANGUAGE_CODE ][ $cpt_name ], $this->option_name . '_cpt_content_' . ICL_LANGUAGE_CODE . '_' . $cpt_name );
+			$cpt_content[ ICL_LANGUAGE_CODE ][ $this->cpt_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE ), $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE );
+			wp_editor($cpt_content[ ICL_LANGUAGE_CODE ][ $this->cpt_name ], $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE );
 		} else {
 			echo '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p><br>';
-			$cpt_content[ $cpt_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_cpt_content_' . $cpt_name ), $this->option_name . '_cpt_content_' . $cpt_name );
-			wp_editor($cpt_content[ $cpt_name ], $this->option_name . '_cpt_content_' . $cpt_name );
+			$cpt_content[ $this->cpt_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $this->cpt_name . '_content' ), $this->option_name . '_' . $this->cpt_name . '_content' );
+			wp_editor($cpt_content[ $this->cpt_name ], $this->option_name . '_' . $this->cpt_name . '_content' );
 		}
 		$name = 'cpt_content_submit';
 		submit_button( 'Submit', 'primary', $name );	
 	}
 	
 	public function wh_cc_creator_tax_content_cb( $param ){
-		$tax_name = $param['tax_name'];
-		$tax_label = $param['tax_label'];
 		$multilang = $param['multilang'];
 		
 		if( $multilang ){
-			$tax_content[ ICL_LANGUAGE_CODE ][ $tax_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_tax_content_' . ICL_LANGUAGE_CODE . '_' . $tax_name ), $this->option_name . '_tax_content_' . ICL_LANGUAGE_CODE . '_' . $tax_name );
-			wp_editor($tax_content[ ICL_LANGUAGE_CODE ][ $tax_name ], $this->option_name . '_tax_content_' . ICL_LANGUAGE_CODE . '_' . $tax_name );
+			$tax_content[ ICL_LANGUAGE_CODE ][ $this->tax_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE ), $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE );
+			wp_editor($tax_content[ ICL_LANGUAGE_CODE ][ $this->tax_name ], $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE );
 		} else {
 			echo '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p><br>';
-			$tax_content[ $tax_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_tax_content_' . $tax_name ), $this->option_name . '_tax_content_' . $tax_name );
-			wp_editor($tax_content[ $tax_name ], $this->option_name . '_tax_content_' . $tax_name );
+			$tax_content[ $this->tax_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $this->tax_name . '_content' ), $this->option_name . '_' . $this->tax_name . '_content' );
+			wp_editor($tax_content[ $this->tax_name ], $this->option_name . '_' . $this->tax_name . '_content' );
 		}
 		$name = 'tax_content_submit';
 		submit_button( 'Submit', 'primary', $name );	
 	}
 	
 	public function wh_cc_creator_term_content_cb( $param ){
-		$term_name = $param['term_name'];
-		$term_label = $param['term_label'];
 		$multilang = $param['multilang'];
 		
 		if( $multilang ){
-			$term_content[ ICL_LANGUAGE_CODE ][ $term_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_term_content_' . ICL_LANGUAGE_CODE . '_' . $term_name ), $this->option_name . '_term_content_' . ICL_LANGUAGE_CODE . '_' . $term_name );
-			wp_editor($term_content[ ICL_LANGUAGE_CODE ][ $term_name ], $this->option_name . '_term_content_' . ICL_LANGUAGE_CODE . '_' . $term_name );
+			$term_content[ ICL_LANGUAGE_CODE ][ $this->term_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE ), $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE );
+			wp_editor($term_content[ ICL_LANGUAGE_CODE ][ $this->term_name ], $this->option_name . '_term_content_' . ICL_LANGUAGE_CODE . '_' . $this->term_name );
 		} else {
 			echo '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p><br>';
-			$term_content[ $term_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_term_content_' . $term_name ), $this->option_name . '_term_content_' . $term_name );
-			wp_editor($term_content[ $term_name ], $this->option_name . '_term_content_' . $term_name );
+			$term_content[ $this->term_name ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $this->term_name . '_content' ), $this->option_name . '_' . $this->term_name . '_content' );
+			wp_editor($term_content[ $this->term_name ], $this->option_name . '_' . $this->term_name . '_content' );
 		}
 		$name = 'term_content_submit';
 		submit_button( 'Submit', 'primary', $name );	
 	}
-
+	
+	
 }
