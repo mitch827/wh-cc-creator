@@ -157,6 +157,7 @@ class Wh_Cc_Creator {
 		
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_setting' );
+		$this->loader->add_action( 'init', $plugin_admin, 'wh_custom_post_type', 0);
 
 	}
 

@@ -217,10 +217,23 @@ class Wh_Cc_Creator_Admin {
 			$this->plugin_name . '_add_tax',
 			$this->option_name . '_add_tax',
 			$param = array(
-				'label_for' 	=> $this->option_name . '_select_cpt',
+				'label_for' 	=> $this->option_name . '_tax_creator',
 			)
 		);
 		register_setting( $this->plugin_name . '_add_tax', $this->option_name . '_tax_creator' );
+		
+		//CUSTOM POST TYPE creator
+		add_settings_field(
+			$this->option_name . '_cpt_creator',
+			__( 'Custom post type creator', 'wh-cc-creator' ),
+			array( $this, $this->option_name . '_cpt_creator_cb'),
+			$this->plugin_name . '_add_cpt',
+			$this->option_name . '_add_cpt',
+			$param = array(
+				'label_for' 	=> $this->option_name . '_cpt_creator',
+			)
+		);
+		register_setting( $this->plugin_name . '_add_tax', $this->option_name . '_cpt_creator' );
 		
 		//CUSTOM POST TYPE selector
 		$args = array (
@@ -462,10 +475,25 @@ class Wh_Cc_Creator_Admin {
 	
 	public function wh_cc_creator_tax_creator_cb(){
 		?>
+
+		 <p>This file is used to create custom taxonomies. In the future it will be a full functonal plugin.<br>
+		 For now use: <a href="https://generatewp.com/taxonomy/" target="_blank">https://generatewp.com/taxonomy/</a></p>
+	 	
+		<?php
+	}
+	
+	public function wh_cc_creator_cpt_creator_cb(){
+		?>
+		
+		 <p>This file is used to create custom taxonomies. In the future it will be a full functonal plugin.<br>
+	 For now use: <a href="https://generatewp.com/post-type/" target="_blank">https://generatewp.com/post-type/</a></p>
 			
 		<?php
 	}
 	
+	public function wh_custom_post_type(){
+		include_once 'partials/wh-cc-creator-admin-cpt.php';
+	}
 	/**
 	 * wh_cc_creator_select_cb function.
 	 *
