@@ -172,6 +172,10 @@ class Wh_Cc_Creator_Admin {
 	 * @since  1.0.0
 	 */
 	public function register_setting() {
+		//Get varius content for creating the options
+		$post_types = $this->wh_cc_creator_get_content( 'post', NULL );
+		$taxonomies = $this->wh_cc_creator_get_content( 'taxonomy', NULL );
+		$term = $this->wh_cc_creator_get_content( 'term', $taxonomies );
 		
 		// Add sections
 		add_settings_section(
@@ -238,12 +242,6 @@ class Wh_Cc_Creator_Admin {
 		register_setting( $this->plugin_name . '_add_cpt', $this->option_name . '_cpt_creator' );
 		
 		//CUSTOM POST TYPE selector
-		$args = array (
-			'public' 	=> true,
-			'_builtin' 	=> false	
-		);
-		$post_types = get_post_types( $args, 'objects' );
-		
 		add_settings_field(
 			$this->option_name . '_select_cpt',
 			__( 'Select the custom post archive page you want to edit', 'wh-cc-creator' ),
@@ -259,12 +257,6 @@ class Wh_Cc_Creator_Admin {
 		register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_select_cpt' );
 		
 		//TAXONOMIES selector
-		$args_tax = array (
-			'public' 	=> true,
-			'_builtin' 	=> false	
-		);
-		$taxonomies = get_taxonomies( $args, 'objects' );
-		
 		add_settings_field(
 			$this->option_name . '_select_tax',
 			__( 'Select the taxonomy archive page you want to edit', 'wh-cc-creator' ),
@@ -280,11 +272,6 @@ class Wh_Cc_Creator_Admin {
 		register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_select_tax' );
 		
 		//TAXONOMY TERMS selector
-		foreach( $taxonomies as $tax ) :
-			$terms[$tax->label] = $tax->name;
-		endforeach;
-		$term = get_terms( $terms, array( 'hide_empty' => 0 ) );
-
 		add_settings_field(
 			$this->option_name . '_select_term',
 			__( 'Select the taxonomy term archive page you want to edit', 'wh-cc-creator' ),
@@ -563,7 +550,7 @@ class Wh_Cc_Creator_Admin {
 			<?php if( ! empty( $img_path ) ) : ?>
 				<p class="description"><?php _e( 'Image preview' , 'wh-cc-creator' ); ?></p>
 				<?php
-					$img_attr = wp_get_attachment_image_src( attachment_url_to_postid( $img_path), 'thumbnail' );
+					$img_attr = wp_get_attachment_image_src( attachment_url_to_postid( $img_path ), 'thumbnail' );
 				?>
 				<img src="<?php echo $img_attr[0]; ?>" width="<?php echo $img_attr[1]; ?>" height="<?php echo $img_attr[2]; ?>">
 			<?php endif; ?>
@@ -609,5 +596,36 @@ class Wh_Cc_Creator_Admin {
 		submit_button( 'Publish', 'primary large', $name );	
 	}
 	
+	/**
+	 * wh_cc_creator_get_content function.
+	 *
+	 * Get varius content for creating options
+	 * 
+	 * @access public
+	 * @param mixed $content_type -> type of content (post, taxonomy, term)
+	 * @param mixed $taxonomies -> array of taxonomy used to get terms
+	 * @return void
+	 */
+	public function wh_cc_creator_get_content( $content_type, $taxonomies ){
+		
+		$args = array (
+			'public' 	=> true,
+			'_builtin' 	=> false	
+		);
+		if ( $content_type === 'post')
+			$result = get_post_types( $args, 'objects' );
+			
+		if ( $content_type === 'taxonomy')
+			$result = get_taxonomies( $args, 'objects' );
+		
+		if ( $content_type === 'term'){
+			foreach( $taxonomies as $tax ) :
+				$taxes[] = $tax->name;
+			endforeach;
+			$result = get_terms( $taxes, array( 'hide_empty' => FALSE ) );
+		}
+		
+		return $result;
+	}
 	
 }

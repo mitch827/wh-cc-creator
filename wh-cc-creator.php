@@ -16,7 +16,7 @@
  * Plugin Name:       WH Custom content creator
  * Plugin URI:        https://github.com/mitch827/wh-cc-creator
  * Description:       Custom content creator to add custom pot types and custom taxonomies. With this plugin you can also customize Archives page content such custom post type archives, custom taxonomies archives and custom taxonomy terms archives.
- * Version:           1.0.1a
+ * Version:           1.0.2a
  * Author:            Web Heroes
  * Author URI:        http://www.webheroes.it
  * License:           GPL-2.0+
