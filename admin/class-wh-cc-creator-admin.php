@@ -488,12 +488,12 @@ class Wh_Cc_Creator_Admin {
 	}
 	
 	public function wh_cc_creator_tax(){
-		if ( file_exists( 'partials/wh-cc-creator-admin-tax.php' ) )
+		if ( stream_resolve_include_path( 'partials/wh-cc-creator-admin-tax.php' ) )
 			include_once 'partials/wh-cc-creator-admin-tax.php';
 	}
 	
 	public function wh_cc_creator_cpt(){
-		if ( file_exists( 'partials/wh-cc-creator-admin-cpt.php' ) )
+		if ( stream_resolve_include_path( 'partials/wh-cc-creator-admin-cpt.php' ) )
 			include_once 'partials/wh-cc-creator-admin-cpt.php';
 	}
 	
