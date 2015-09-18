@@ -42,23 +42,25 @@
 	<form action="options.php" method="post" action="#">
         <?php
 	        if( $active_tab == 'add_tax' ) {
-	            settings_fields( $this->plugin_name . '_add_tax');
+	            settings_fields( $this->plugin_name . '_add_tax' );
 	            do_settings_sections( $this->plugin_name . '_add_tax' );
+				submit_button();
 	        }
 	        if( $active_tab == 'add_cpt' ) {
-	            settings_fields( $this->plugin_name . '_add_cpt');
+	            settings_fields( $this->plugin_name . '_add_cpt' );
 	            do_settings_sections( $this->plugin_name . '_add_cpt' );
+	            submit_button();
 	        }
 	        if( $active_tab == 'tax_edit' ) {
-		        settings_fields( $this->plugin_name . '_tax_edit');
+		        settings_fields( $this->plugin_name . '_tax_edit' );
 	            do_settings_sections( $this->plugin_name . '_tax_edit' );
 	        }
 	        if( $active_tab == 'term_edit' ) {
-		        settings_fields( $this->plugin_name . '_term_edit');
+		        settings_fields( $this->plugin_name . '_term_edit' );
 	            do_settings_sections( $this->plugin_name . '_term_edit' );
 	        }
 	        if( $active_tab == 'cpt_edit' ) {
-	            settings_fields( $this->plugin_name . '_cpt_edit');
+	            settings_fields( $this->plugin_name . '_cpt_edit' );
 	            do_settings_sections( $this->plugin_name . '_cpt_edit' );
 	        }
         ?>

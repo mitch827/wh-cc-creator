@@ -213,11 +213,12 @@ class Wh_Cc_Creator_Admin {
 		add_settings_field(
 			$this->option_name . '_tax_creator',
 			__( 'Taxonomy creator', 'wh-cc-creator' ),
-			array( $this, $this->option_name . '_tax_creator_cb'),
+			array( $this, $this->option_name . '_content_creator_cb'),
 			$this->plugin_name . '_add_tax',
 			$this->option_name . '_add_tax',
 			$param = array(
-				'label_for' 	=> $this->option_name . '_tax_creator',
+				'label_for' => $this->option_name . '_tax_creator',
+				'type'		=> 'tax'
 			)
 		);
 		register_setting( $this->plugin_name . '_add_tax', $this->option_name . '_tax_creator' );
@@ -226,14 +227,15 @@ class Wh_Cc_Creator_Admin {
 		add_settings_field(
 			$this->option_name . '_cpt_creator',
 			__( 'Custom post type creator', 'wh-cc-creator' ),
-			array( $this, $this->option_name . '_cpt_creator_cb'),
+			array( $this, $this->option_name . '_content_creator_cb'),
 			$this->plugin_name . '_add_cpt',
 			$this->option_name . '_add_cpt',
 			$param = array(
-				'label_for' 	=> $this->option_name . '_cpt_creator',
+				'label_for' => $this->option_name . '_cpt_creator',
+				'type' 		=> 'cpt' 
 			)
 		);
-		register_setting( $this->plugin_name . '_add_tax', $this->option_name . '_cpt_creator' );
+		register_setting( $this->plugin_name . '_add_cpt', $this->option_name . '_cpt_creator' );
 		
 		//CUSTOM POST TYPE selector
 		$args = array (
@@ -473,27 +475,26 @@ class Wh_Cc_Creator_Admin {
 	    endswitch;
 	}
 	
-	public function wh_cc_creator_tax_creator_cb(){
-		?>
-
-		 <p>This file is used to create custom taxonomies. In the future it will be a full functonal plugin.<br>
-		 For now use: <a href="https://generatewp.com/taxonomy/" target="_blank">https://generatewp.com/taxonomy/</a></p>
-	 	
-		<?php
-	}
-	
-	public function wh_cc_creator_cpt_creator_cb(){
+	public function wh_cc_creator_content_creator_cb( $param ){
+		$content = $param['type'];
+		$type = get_option( $this->option_name . '_' . $content . '_creator' );
 		?>
 		
-		 <p>This file is used to create custom taxonomies. In the future it will be a full functonal plugin.<br>
-	 For now use: <a href="https://generatewp.com/post-type/" target="_blank">https://generatewp.com/post-type/</a></p>
-			
+		<textarea cols="80" rows="30" name="<?php echo $this->option_name . '_' . $content . '_creator'; ?>" id="<?php echo $this->option_name . '_' . $content . '_creator'; ?>"><?php echo $type; ?></textarea>
+		<p class="description">This file is used to create custom <?php echo ( ( 'tax' === $content ) ? 'taxonomies' : 'post types' ); ?>. In the future it will be a full functonal plugin.<br> For now use: <a href="https://generatewp.com/<?php echo ( ( 'tax' === $content ) ? 'taxonomy' : 'post-type' ); ?>/" target="_blank">https://generatewp.com/<?php echo ( ( 'tax' === $content ) ? 'taxonomy' : 'post-type' ); ?>/</a></p>
+	 	
 		<?php
+			
 	}
 	
-	public function wh_custom_post_type(){
+	public function wh_cc_creator_tax(){
+		include_once 'partials/wh-cc-creator-admin-tax.php';
+	}
+	
+	public function wh_cc_creator_cpt(){
 		include_once 'partials/wh-cc-creator-admin-cpt.php';
 	}
+	
 	/**
 	 * wh_cc_creator_select_cb function.
 	 *
