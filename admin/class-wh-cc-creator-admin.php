@@ -579,7 +579,7 @@ class Wh_Cc_Creator_Admin {
 	public function wh_cc_creator_general_cb( $section_passed ) {
 		$wpml = $this->wpml_check(); //check for the presence of WPML
 		
-		if ( TRUE === $wpml )
+		if ( FALSE === $wpml )
 			$wpml_control = '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p>';
 			
 		switch ( $section_passed['id'] ) :
