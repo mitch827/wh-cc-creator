@@ -21,6 +21,15 @@
  * @author     Web Heroes <diego@webheroes.it>
  */
 class Wh_Cc_Creator_Deactivator {
+	
+	/**
+	 * The options name to be used in this plugin
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 * @var     string      $option_name    Option name of this plugin
+	 */
+	private $option_name = 'wh_cc_creator';
 
 	/**
 	 * Short Description. (use period)
@@ -30,6 +39,9 @@ class Wh_Cc_Creator_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
+		delete_option($this->option_name . '_select_cpt' );
+		delete_option($this->option_name . '_select_tax' );
+		delete_option($this->option_name . '_select_term' );
 
 	}
 
