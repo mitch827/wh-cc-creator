@@ -305,7 +305,20 @@ class Wh_Cc_Creator_Admin {
 			register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_img' );
 			
 			//Add CPT content editor
-			if ( defined( 'ICL_LANGUAGE_CODE' ) ){
+			if ( defined( 'ICL_LANGUAGE_CODE' ) && !empty( ICL_LANGUAGE_CODE ) ){
+				//Add custom text
+				add_settings_field(
+				    $this->option_name . '_' . $this->cpt_name . '_content_text_' . ICL_LANGUAGE_CODE,
+				    $this->cpt_label . ' ' .  __( 'text', 'wh-cc-creator' ). ' ' . ICL_LANGUAGE_NAME,
+				    array( $this, $this->option_name . '_content_text_cb' ),
+				    $this->plugin_name . '_cpt_edit',
+				    $this->option_name . '_cpt_edit',
+				    $param = array( 
+				    	'label_for' => $this->option_name . '_' . $this->cpt_name . '_content_text_' . ICL_LANGUAGE_CODE,
+				    	'multilang' => true,
+				    	'content' 	=> 'cpt'
+				    )
+				);
 				add_settings_field(
 				    $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE,
 				    $this->cpt_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
@@ -318,8 +331,22 @@ class Wh_Cc_Creator_Admin {
 				    	'content' 	=> 'cpt'
 				    )
 				);
+				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_text_' . ICL_LANGUAGE_CODE );
 				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_' . ICL_LANGUAGE_CODE );
 			} else {
+				//Add custom text
+				add_settings_field(
+				    $this->option_name . '_' . $this->cpt_name . '_content_text',
+				    $this->cpt_label . ' ' .  __( 'text', 'wh-cc-creator' ),
+				    array( $this, $this->option_name . '_content_text_cb' ),
+				    $this->plugin_name . '_cpt_edit',
+				    $this->option_name . '_cpt_edit',
+				    $param = array( 
+				    	'label_for' => $this->option_name . '_' . $this->cpt_name . '_content_text',
+				    	'multilang' => false,
+				    	'content' 	=> 'cpt'
+				    )
+				);
 				add_settings_field(
 				    $this->option_name . '_' . $this->cpt_name . '_content',
 				    $this->cpt_label . ' ' .  __( 'content', 'wh-cc-creator' ),
@@ -332,6 +359,7 @@ class Wh_Cc_Creator_Admin {
 				    	'content' 	=> 'cpt'
 				    )
 				);
+				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_text' );
 				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content' );
 			}
 		}
@@ -342,7 +370,7 @@ class Wh_Cc_Creator_Admin {
 			//Add image uploader
 			add_settings_field(
 			    $this->option_name . '_' . $this->tax_name . '_content_img',
-			    $this->cpt_label . ' ' .  __( 'image', 'wh-cc-creator' ),
+			    $this->tax_label . ' ' .  __( 'image', 'wh-cc-creator' ),
 			    array( $this, $this->option_name . '_content_img_cb' ),
 			    $this->plugin_name . '_tax_edit',
 			    $this->option_name . '_tax_edit',
@@ -355,7 +383,20 @@ class Wh_Cc_Creator_Admin {
 			register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_' . $this->tax_name . '_content_img' );
 			
 			//Add TAXONOMY content editor
-			if ( defined( 'ICL_LANGUAGE_CODE' ) ){
+			if ( defined( 'ICL_LANGUAGE_CODE' ) && !empty( ICL_LANGUAGE_CODE ) ){
+				//Add custom text
+				add_settings_field(
+				    $this->option_name . '_' . $this->cpt_name . '_content_text' . ICL_LANGUAGE_CODE,
+				    $this->tax_label . ' ' .  __( 'text', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
+				    array( $this, $this->option_name . '_content_text_cb' ),
+				    $this->plugin_name . '_tax_edit',
+				    $this->option_name . '_tax_edit',
+				    $param = array( 
+				    	'label_for' => $this->option_name . '_' . $this->tax_name . '_content_text' . ICL_LANGUAGE_CODE,
+				    	'multilang' => true,
+				    	'content' 	=> 'tax'
+				    )
+				);
 				add_settings_field(
 				    $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE,
 				    $this->tax_label . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
@@ -368,8 +409,21 @@ class Wh_Cc_Creator_Admin {
 				    	'content' 	=> 'tax'
 				    )
 				);
+				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->tax_name . '_content_text' . ICL_LANGUAGE_CODE );
 				register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_' . $this->tax_name . '_content_' . ICL_LANGUAGE_CODE );
 			} else {
+				add_settings_field(
+				    $this->option_name . '_' . $this->tax_name . '_content_text',
+				    $this->tax_label . ' ' .  __( 'text', 'wh-cc-creator' ),
+				    array( $this, $this->option_name . '_content_text_cb' ),
+				    $this->plugin_name . '_tax_edit',
+				    $this->option_name . '_tax_edit',
+				    $param = array( 
+				    	'label_for' => $this->option_name . '_' . $this->tax_name . '_content_text',
+				    	'multilang' => false,
+				    	'content' 	=> 'tax'
+				    )
+				);
 				add_settings_field(
 				    $this->option_name . '_' . $this->tax_name . '_content',
 				    $this->tax_label . ' ' .  __( 'content', 'wh-cc-creator' ),
@@ -382,6 +436,7 @@ class Wh_Cc_Creator_Admin {
 				    	'content' 	=> 'tax'
 				    )
 				);
+				register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->tax_name . '_content_text' );
 				register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_' . $this->tax_name . '_content' );
 			}
 		}
@@ -404,7 +459,20 @@ class Wh_Cc_Creator_Admin {
 			);
 			register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content_img' );
 		
-			if ( defined( 'ICL_LANGUAGE_CODE' ) ){
+			if ( defined( 'ICL_LANGUAGE_CODE' ) && !empty( ICL_LANGUAGE_CODE ) ){
+				//Add custom text
+				add_settings_field(
+				    $this->option_name . '_' . $this->term_name . '_content_text_' . ICL_LANGUAGE_CODE,
+				    $this->term_label . ' ' .  __( 'text', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
+				    array( $this, $this->option_name . '_content_text_cb' ),
+				    $this->plugin_name . '_term_edit',
+				    $this->option_name . '_term_edit',
+				    $param = array( 
+				    	'label_for' => $this->option_name . '_' . $this->cpt_name . '_content_text_' . ICL_LANGUAGE_CODE,
+				    	'multilang' => true,
+				    	'content' 	=> 'term'
+				    )
+				);
 				add_settings_field(
 				    $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE,
 				    $this->term_label  . ' ' .  __( 'content in', 'wh-cc-creator' ) . ' ' . ICL_LANGUAGE_NAME,
@@ -417,8 +485,22 @@ class Wh_Cc_Creator_Admin {
 				    	'content' 	=> 'term'
 				    )
 				);
+				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content_text_' . ICL_LANGUAGE_CODE );
 				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content_' . ICL_LANGUAGE_CODE );
 			} else {
+				//Add custom text
+				add_settings_field(
+				    $this->option_name . '_' . $this->term_name . '_content_text',
+				    $this->term_label . ' ' .  __( 'text', 'wh-cc-creator' ),
+				    array( $this, $this->option_name . '_content_text_cb' ),
+				    $this->plugin_name . '_term_edit',
+				    $this->option_name . '_term_edit',
+				    $param = array( 
+				    	'label_for' => $this->option_name . '_' . $this->term_name . '_content_text',
+				    	'multilang' => false,
+				    	'content' 	=> 'term'
+				    )
+				);
 				add_settings_field(
 				    $this->option_name . '_' . $this->term_name . '_content',
 				    $this->term_label  . ' ' .  __( 'content', 'wh-cc-creator' ),
@@ -431,6 +513,7 @@ class Wh_Cc_Creator_Admin {
 				    	'content' 	=> 'term'
 				    )
 				);
+				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content_text' );
 				register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content' );
 			}
 		}
@@ -443,21 +526,36 @@ class Wh_Cc_Creator_Admin {
 	 * @return void
 	 */
 	public function wh_cc_creator_general_cb( $section_passed ) {
+		if ( !defined( 'ICL_LANGUAGE_CODE' ) )
+			$wpml_control = '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p>';
+		else if ( empty( ICL_LANGUAGE_CODE ) )
+			$wpml_control = '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not configured, please configure it to make content multilingual.', 'wh-cc-creator' ) . '</p>';
+			
 		switch ( $section_passed['id'] ) :
 			case  $this->option_name . '_add_tax':
 				printf( __( '<p>%s: add custom taxonomies.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				if ( isset( $wpml_control ) )
+					echo $wpml_control;
 				break;
 			case  $this->option_name . '_add_cpt':
 				printf( __( '<p>%s: add custom tpost types.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				if (isset( $wpml_control ) )
+					echo $wpml_control;
 				break;
 			case  $this->option_name . '_tax_edit':
 				printf( __( '<p>%s: customize custom taxonomies archive page.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				if ( isset( $wpml_control ) )
+					echo $wpml_control;
 				break;
 			case  $this->option_name . '_term_edit':
 				printf( __( '<p>%s: customize custom taxonomy terms archive page.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				if ( isset( $wpml_control ) )
+					echo $wpml_control;
 				break;
 			case  $this->option_name . '_cpt_edit':
 				printf( __( '<p>%s: customize custom post types archive page.</p>', 'wh-cc-creator' ), $section_passed['title'] );
+				if ( isset( $wpml_control ) )
+					echo $wpml_control;
 				break;
 	    endswitch;
 	}
@@ -563,6 +661,34 @@ class Wh_Cc_Creator_Admin {
 
 	<?php
 	}
+	
+	/**
+	 * wh_cc_creator_content_text_cb function. Add image using WP media uploader
+	 * 
+	 * @access public
+	 * @param mixed $param -> type of content (cpt, tax, term)
+	 * @return void
+	 */
+	 public function wh_cc_creator_content_text_cb( $param ){
+		$multilang = $param['multilang'];
+		$content = $param['content'];
+		
+		if ( $content === 'cpt' )
+			$content_type = $this->cpt_name;
+		if ( $content === 'tax' )
+			$content_type = $this->tax_name;
+		if ( $content === 'term' )
+			$content_type = $this->term_name;
+		
+		if ( TRUE == $multilang ){
+			$text = get_option( $this->option_name . '_' . $content_type . '_content_text_' . ICL_LANGUAGE_CODE );
+			echo '<input class="widefat" type="text" name="' . $this->option_name . '_content_text_' . ICL_LANGUAGE_CODE . '" id="' . $this->option_name . '_content_text_' . ICL_LANGUAGE_CODE . '" value="' . $text . '" />' ;
+		} else {
+			$text = get_option( $this->option_name . '_' . $content_type . '_content_text');
+			echo '<input class="widefat" type="text" name="' . $this->option_name . '_content_text' . '" id="' . $this->option_name . '_content_text' . '" value="' . $text . '" />';
+		}
+		echo '<p class="description">Insert custom text to be displayed in various part of the site. <b>Be short!</b></p>';
+	 }
 
 	/**
 	 * wh_cc_creator_cpt_content_cb function.
@@ -588,7 +714,6 @@ class Wh_Cc_Creator_Admin {
 			$editor_content[ ICL_LANGUAGE_CODE ][ $content_type ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $content_type . '_content_' . ICL_LANGUAGE_CODE ), $this->option_name . '_' . $content_type . '_content_' . ICL_LANGUAGE_CODE );
 			wp_editor($editor_content[ ICL_LANGUAGE_CODE ][ $content_type ], $this->option_name . '_' . $content_type . '_content_' . ICL_LANGUAGE_CODE );
 		} else {
-			echo '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p><br>';
 			$editor_content[ $content_type ] = apply_filters( 'the_editor_content', get_option( $this->option_name . '_' . $content_type . '_content' ), $this->option_name . '_' . $content_type . '_content' );
 			wp_editor($editor_content[ $content_type ], $this->option_name . '_' . $content_type . '_content' );
 		}

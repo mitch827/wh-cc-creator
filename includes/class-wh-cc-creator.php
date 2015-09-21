@@ -69,7 +69,7 @@ class Wh_Cc_Creator {
 	public function __construct() {
 
 		$this->plugin_name = 'wh-cc-creator';
-		$this->version = '1.0.2a';
+		$this->version = '1.0.3a';
 
 		$this->load_dependencies();
 		$this->set_locale();
