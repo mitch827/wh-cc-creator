@@ -181,11 +181,13 @@ class Wh_Cc_Creator_Admin {
 			$result = get_taxonomies( $args, 'objects' );
 		
 		if ( $content_type === 'term'){
-			foreach( $taxonomies as $tax ) :
-				$taxes[] = $tax->name;
-			endforeach;
-			$result = get_terms( $taxes, array( 'hide_empty' => FALSE ) );
-		}
+			if ( $taxonomies ){
+				foreach( $taxonomies as $tax ) :
+					$taxes[] = $tax->name;
+				endforeach;
+				$result = get_terms( $taxes, array( 'hide_empty' => FALSE ) );
+			} else { $result = NULL; }	
+		} else { $result = NULL; }	
 		
 		return $result;
 	}
@@ -665,7 +667,7 @@ class Wh_Cc_Creator_Admin {
         		echo $output;
 			endforeach;
 		else :
-			echo '<option value="none" disabled>No' . $content . ' found</option>';
+			echo '<option value="none" disabled>No ' . $content . ' found</option>';
 		endif;
 		echo '</select>';
 	}
