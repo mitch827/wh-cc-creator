@@ -141,6 +141,56 @@ class Wh_Cc_Creator_Admin {
 	}
 	
 	/**
+	 * This function provides simple check for the presence of WPML plugin.
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	public function wpml_check(){
+		
+		if (defined ( 'ICL_LANGUAGE_CODE' ) ){
+			$wpml_check = ICL_LANGUAGE_CODE;
+			if ( !empty( $wpml_check ) ){
+				return TRUE;
+			}
+			return FALSE;
+		}
+		return FALSE;
+	}
+	
+	/**
+	 * wh_cc_creator_get_content function.
+	 *
+	 * Get varius content for creating options
+	 * 
+	 * @access public
+	 * @param mixed $content_type -> type of content (post, taxonomy, term)
+	 * @param mixed $taxonomies -> array of taxonomy used to get terms
+	 * @return void
+	 */
+	public function wh_cc_creator_get_content( $content_type, $taxonomies ){
+		
+		$args = array (
+			'public' 	=> true,
+			'_builtin' 	=> false	
+		);
+		if ( $content_type === 'post')
+			$result = get_post_types( $args, 'objects' );
+			
+		if ( $content_type === 'taxonomy')
+			$result = get_taxonomies( $args, 'objects' );
+		
+		if ( $content_type === 'term'){
+			foreach( $taxonomies as $tax ) :
+				$taxes[] = $tax->name;
+			endforeach;
+			$result = get_terms( $taxes, array( 'hide_empty' => FALSE ) );
+		}
+		
+		return $result;
+	}
+	
+	/**
 	 * Create option page in a sub-menu page of Web Heroes Enchaments Plugin
 	 *
 	 * @since  1.0.0
@@ -176,6 +226,7 @@ class Wh_Cc_Creator_Admin {
 		$post_types = $this->wh_cc_creator_get_content( 'post', NULL );
 		$taxonomies = $this->wh_cc_creator_get_content( 'taxonomy', NULL );
 		$term = $this->wh_cc_creator_get_content( 'term', $taxonomies );
+		$wpml = $this->wpml_check(); //check for the presence of WPML
 		
 		// Add sections
 		add_settings_section(
@@ -305,7 +356,7 @@ class Wh_Cc_Creator_Admin {
 			register_setting( $this->plugin_name . '_cpt_edit', $this->option_name . '_' . $this->cpt_name . '_content_img' );
 			
 			//Add CPT content editor
-			if ( defined( 'ICL_LANGUAGE_CODE' ) && !empty( ICL_LANGUAGE_CODE ) ){
+			if ( TRUE === $wpml ){
 				//Add custom text
 				add_settings_field(
 				    $this->option_name . '_' . $this->cpt_name . '_content_text_' . ICL_LANGUAGE_CODE,
@@ -383,7 +434,7 @@ class Wh_Cc_Creator_Admin {
 			register_setting( $this->plugin_name . '_tax_edit', $this->option_name . '_' . $this->tax_name . '_content_img' );
 			
 			//Add TAXONOMY content editor
-			if ( defined( 'ICL_LANGUAGE_CODE' ) && !empty( ICL_LANGUAGE_CODE ) ){
+			if ( TRUE === $wpml ){
 				//Add custom text
 				add_settings_field(
 				    $this->option_name . '_' . $this->cpt_name . '_content_text' . ICL_LANGUAGE_CODE,
@@ -459,7 +510,7 @@ class Wh_Cc_Creator_Admin {
 			);
 			register_setting( $this->plugin_name . '_term_edit', $this->option_name . '_' . $this->term_name . '_content_img' );
 		
-			if ( defined( 'ICL_LANGUAGE_CODE' ) && !empty( ICL_LANGUAGE_CODE ) ){
+			if ( TRUE === $wpml ){
 				//Add custom text
 				add_settings_field(
 				    $this->option_name . '_' . $this->term_name . '_content_text_' . ICL_LANGUAGE_CODE,
@@ -526,10 +577,10 @@ class Wh_Cc_Creator_Admin {
 	 * @return void
 	 */
 	public function wh_cc_creator_general_cb( $section_passed ) {
-		if ( !defined( 'ICL_LANGUAGE_CODE' ) )
+		$wpml = $this->wpml_check(); //check for the presence of WPML
+		
+		if ( TRUE === $wpml )
 			$wpml_control = '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not installed, content won\'t be multilingual.', 'wh-cc-creator' ) . '</p>';
-		else if ( empty( ICL_LANGUAGE_CODE ) )
-			$wpml_control = '<p class="wp-ui-notification"><strong>' . __('Attention!', 'wh-cc-creator' ) . '</strong> ' . __( 'WPML is not configured, please configure it to make content multilingual.', 'wh-cc-creator' ) . '</p>';
 			
 		switch ( $section_passed['id'] ) :
 			case  $this->option_name . '_add_tax':
@@ -719,38 +770,6 @@ class Wh_Cc_Creator_Admin {
 		}
 		$name = 'editor_content_submit';
 		submit_button( 'Publish', 'primary large', $name );	
-	}
-	
-	/**
-	 * wh_cc_creator_get_content function.
-	 *
-	 * Get varius content for creating options
-	 * 
-	 * @access public
-	 * @param mixed $content_type -> type of content (post, taxonomy, term)
-	 * @param mixed $taxonomies -> array of taxonomy used to get terms
-	 * @return void
-	 */
-	public function wh_cc_creator_get_content( $content_type, $taxonomies ){
-		
-		$args = array (
-			'public' 	=> true,
-			'_builtin' 	=> false	
-		);
-		if ( $content_type === 'post')
-			$result = get_post_types( $args, 'objects' );
-			
-		if ( $content_type === 'taxonomy')
-			$result = get_taxonomies( $args, 'objects' );
-		
-		if ( $content_type === 'term'){
-			foreach( $taxonomies as $tax ) :
-				$taxes[] = $tax->name;
-			endforeach;
-			$result = get_terms( $taxes, array( 'hide_empty' => FALSE ) );
-		}
-		
-		return $result;
 	}
 	
 }
