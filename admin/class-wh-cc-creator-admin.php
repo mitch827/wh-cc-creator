@@ -174,22 +174,25 @@ class Wh_Cc_Creator_Admin {
 			'public' 	=> true,
 			'_builtin' 	=> false	
 		);
-		if ( $content_type === 'post')
+		if ( $content_type === 'post'){
 			$result = get_post_types( $args, 'objects' );
-			
-		if ( $content_type === 'taxonomy')
+			return $result;
+		}
+		if ( $content_type === 'taxonomy'){
 			$result = get_taxonomies( $args, 'objects' );
-		
+			return $result;
+		}
 		if ( $content_type === 'term'){
 			if ( $taxonomies ){
 				foreach( $taxonomies as $tax ) :
 					$taxes[] = $tax->name;
 				endforeach;
 				$result = get_terms( $taxes, array( 'hide_empty' => FALSE ) );
-			} else { $result = NULL; }	
-		} else { $result = NULL; }	
+				return $result;
+			} 
+		}
 		
-		return $result;
+		return NULL;
 	}
 	
 	/**
